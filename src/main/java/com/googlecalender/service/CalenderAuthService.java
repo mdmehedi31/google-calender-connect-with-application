@@ -20,9 +20,9 @@ import java.io.StringReader;
 import java.util.Collections;
 
 @Service
-public class CalenderService {
+public class CalenderAuthService {
 
-    private static final Logger log= LoggerFactory.getLogger(CalenderService.class);
+    private static final Logger log= LoggerFactory.getLogger(CalenderAuthService.class);
 
     @Value("${google.client_id}")
     private String clientId;

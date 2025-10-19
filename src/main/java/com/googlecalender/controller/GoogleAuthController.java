@@ -1,7 +1,7 @@
 package com.googlecalender.controller;
 
 
-import com.googlecalender.service.CalenderService;
+import com.googlecalender.service.CalenderAuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,9 +17,9 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping("oauth2")
 public class GoogleAuthController {
 
-    private CalenderService calenderService;
+    private CalenderAuthService calenderService;
     private static final Logger log= LoggerFactory.getLogger(GoogleAuthController.class);
-    public GoogleAuthController(CalenderService calenderService) {
+    public GoogleAuthController(CalenderAuthService calenderService) {
         this.calenderService = calenderService;
     }
 
