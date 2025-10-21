@@ -1,22 +1,93 @@
 package com.googlecalender.service;
 
+import com.google.api.client.auth.oauth2.BearerToken;
 import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
+import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
+import com.google.api.services.calendar.model.Event;
+import com.google.api.services.calendar.model.EventAttendee;
+import com.google.api.services.calendar.model.EventDateTime;
+import com.googlecalender.dto.EventDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class CalenderService implements ICalenderService{
 
 
-    @Value("${{google.application.name}")
+    @Value("${{google.application_name}")
     private String applicationName;
 
-
-    private Calendar getCalenderClient(String googleCalendarToken){
-
-        return null;
+    private static final Logger log = LoggerFactory.getLogger(CalenderService.class);
+    private Calendar getCalenderClient(Credential credential) throws IOException, GeneralSecurityException {
+        try{
+            log.info("The application name is " + applicationName);
+            return new Calendar.Builder(GoogleNetHttpTransport.newTrustedTransport() ,
+                    GsonFactory.getDefaultInstance(),
+                    credential).setApplicationName(applicationName).build();
+        }catch(IOException exception){
+            throw exception;
+        }
+        catch (Exception e) {
+            throw e;
+        }
     }
 
+    @Override
+    public String createEvent(EventDTO eventDTO, String accessToken, Long expireSecondsTime) {
+        try{
+            Credential credential = new Credential(BearerToken.authorizationHeaderAccessMethod());
+            credential.setAccessToken(accessToken);
+            credential.setExpiresInSeconds(expireSecondsTime);
 
+            Calendar client = getCalenderClient(credential);
+
+            Event event = new Event();
+            event.setSummary(eventDTO.getEventTitle());
+            event.setDescription(eventDTO.getEventDescription());
+            String startString = eventDTO.getEventStartDateTime().atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+
+            EventDateTime eventStartDate = new EventDateTime();
+            eventStartDate.setDateTime(DateTime.parseRfc3339(startString));
+            event.setStart(eventStartDate);
+
+            String endDate= eventDTO.getEventEndDateTime().atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+
+            EventDateTime eventEndDate = new EventDateTime();
+            eventEndDate.setDateTime(DateTime.parseRfc3339(endDate));
+            event.setEnd(eventEndDate);
+
+           List<EventAttendee> eventAttendeeList = new ArrayList<>();
+           for(String attendEmail : eventDTO.getInviteUserEmailIds()){
+               eventAttendeeList.add(new EventAttendee().setEmail(attendEmail));
+           }
+           event.setAttendees(eventAttendeeList);
+
+           String calenderId = eventDTO.getCalendarId();
+
+           event = client.events().insert(calenderId, event).setSendNotifications(true).execute();
+           if(event !=null){
+               log.info("Calender is created -> cal creator email : {}, cal id : {}, cal Uid : {}", event.getCreator().getEmail(),event.getId(), event.getICalUID());
+              return String.format("SUCCESS \n create html : %s",event.getHtmlLink());
+           }
+        return "Create Failed";
+        }catch (IOException exception){
+            log.error("An IOException thrown : ",exception);
+        }
+        catch (Exception e) {
+            log.error("An exception thrown : ",e);
+        }
+        return "";
+    }
 }

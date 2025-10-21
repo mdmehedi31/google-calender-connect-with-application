@@ -7,6 +7,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
+import com.google.api.client.util.Objects;
 import com.google.api.services.calendar.CalendarScopes;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
@@ -18,6 +19,8 @@ import org.springframework.web.servlet.view.RedirectView;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class CalenderAuthService {
@@ -67,7 +70,7 @@ public class CalenderAuthService {
         }
     }
 
-    public String oAuthCallback(String code, HttpServletRequest httpServletRequest) {
+    public Map<String, Object> oAuthCallback(String code) {
         try {
 
             log.info("The redirect url code is : {}", code);
@@ -82,17 +85,37 @@ public class CalenderAuthService {
             }
             log.info("The credential is : " + credential);
 
-            ObjectMapper objectMapper = new ObjectMapper();
-            String creedentials = objectMapper.writeValueAsString(credential);
-            httpServletRequest.getSession().setAttribute("googleCredential", credential);
+         //   ObjectMapper objectMapper = new ObjectMapper();
+          //  String creedentials = objectMapper.writeValueAsString(credential);
+        //httpServletRequest.getSession().setAttribute("googleCredential", credential);
             log.info("----------------------------------------------------------------------------------------");
-            Credential obj = (Credential) httpServletRequest.getAttribute("googleCredential");
-            log.info("Controller -> access token : {}, refresh token : {}, expire token : {}", obj.getAccessToken(), obj.getRefreshToken(), obj.getExpiresInSeconds());
-            return "Success";
+            //Credential obj = (Credential) httpServletRequest.getAttribute("googleCredential");
+           // Credential obj =(Credential) httpServletRequest.getSession().getAttribute("googleCredential");
+
+        /* if(httpServletRequest.getAttribute("googleCredential") != null){
+               log.info("The credential is not null");
+           }else{
+               log.info("The credential is null");
+           }*/
+            log.info("Calender auth service -> access token : {}, refresh token : {}, expire token : {}, method: {}", credential.getAccessToken(),
+                    credential.getRefreshToken(),
+                    credential.getExpiresInSeconds(), credential.getMethod());
+           Map<String, Object> result = new HashMap<>();
+
+           if(credential.getAccessToken() != null){
+               result.put("token", credential.getAccessToken());
+           }
+           if(credential.getRefreshToken() != null){
+               result.put("refreshToken", credential.getRefreshToken());
+           }
+           if(credential.getExpiresInSeconds() != null){
+               result.put("expiresInSeconds", credential.getExpiresInSeconds());
+           }
+            return result;
         } catch (Exception e) {
             log.error("An Exception thrown : ", e);
             //throw e;
-            return e.getMessage();
+            return new HashMap<>();
         }
     }
 }

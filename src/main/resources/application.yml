@@ -4,3 +4,4 @@ google:
     client_id: ${GOOGLE_CLIENT_ID}
     secret_id: ${GOOGLE_SECRET_ID}
     redirect_uri: ${GOOGLE_REDIRECT_URI}
+    application_name: ${GOOGLE_APPLICATION_NAME}
