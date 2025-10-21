@@ -9,6 +9,7 @@ import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventAttendee;
 import com.google.api.services.calendar.model.EventDateTime;
+import com.google.api.services.calendar.model.Events;
 import com.googlecalender.dto.EventDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +18,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -89,5 +92,30 @@ public class CalenderService implements ICalenderService{
             log.error("An exception thrown : ",e);
         }
         return "";
+    }
+
+    @Override
+    public List<Event> getAllEvents(String accessToken, Long expireSecondsTime, LocalDateTime startTime, LocalDateTime endTime) {
+        try{
+            Credential credential= new Credential(BearerToken.authorizationHeaderAccessMethod());
+            credential.setAccessToken(accessToken);
+            credential.setExpiresInSeconds(expireSecondsTime);
+            Calendar client = getCalenderClient(credential);
+           // DateTime stDate=
+            DateTime startDate= DateTime.parseRfc3339(startTime.toString());
+            DateTime endDate= DateTime.parseRfc3339(endTime.toString());
+           // DateTime now = new DateTime(System.currentTimeMillis());
+            Events event = client.events().list("primary")
+                    .setTimeMin(startDate).
+                   setTimeMax(endDate).
+                    setOrderBy("startTime").
+                    setSingleEvents(true).execute();
+
+            log.info("Event items : {}", event.getItems().size());
+            return event.getItems();
+        }catch (Exception e){
+            log.error("An exception thrown : ",e);
+            return List.of();
+        }
     }
 }
