@@ -131,4 +131,19 @@ public class CalenderService implements ICalenderService{
             return new ArrayList<>();
         }
     }
+
+    @Override
+    public List<Event> getAllCalendarEventByCalendarId(String accessToken, Long expireSecondsTime, String calendarId) {
+        try{
+            Credential credential = new Credential(BearerToken.authorizationHeaderAccessMethod());
+            credential.setAccessToken(accessToken);
+            credential.setExpiresInSeconds(expireSecondsTime);
+            Calendar client = getCalenderClient(credential);
+            Events calendarList= client.events().list(calendarId).setOrderBy("startTime").setSingleEvents(true).execute();
+            return calendarList.getItems();
+        }catch (Exception e){
+            log.error("An exception thrown : ",e);
+        }
+        return List.of();
+    }
 }

@@ -3,6 +3,7 @@ package com.googlecalender.controller;
 
 import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
+import com.google.api.services.calendar.model.Events;
 import com.googlecalender.dto.EventDTO;
 import com.googlecalender.service.ICalenderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,5 +39,11 @@ public class GoogleCalenderController {
     public ResponseEntity<List<CalendarListEntry>> getAllCalendarList(@RequestParam String credentialId, @RequestParam Long expireTimeSpan){
         List<CalendarListEntry> calendarListEntryList= this.calenderService.getCalendarList(credentialId, expireTimeSpan);
         return new ResponseEntity<>(calendarListEntryList, HttpStatus.OK);
+    }
+
+    @GetMapping("/get-all-events-by-calendar-id")
+    public ResponseEntity<List<Event>> getAllEventsByCalenderId(@RequestParam String credentialId, @RequestParam Long expireTimeSpan, String calendarId) {
+        List<Event> eventList = this.calenderService.getAllCalendarEventByCalendarId(credentialId,expireTimeSpan,calendarId);
+        return new ResponseEntity<>(eventList,HttpStatus.OK);
     }
 }
