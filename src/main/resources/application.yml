@@ -5,3 +5,10 @@ google:
     secret_id: ${GOOGLE_SECRET_ID}
     redirect_uri: ${GOOGLE_REDIRECT_URI}
     application_name: ${GOOGLE_APPLICATION_NAME}
+
+spring:
+    datasource:
+        username: ${DB_USER_NAME}
+        password: ${DB_PASSWORD}
+        url: ${DB_URL}
+        driver-class-name: com.mysql.cj.jdbc.Driver
