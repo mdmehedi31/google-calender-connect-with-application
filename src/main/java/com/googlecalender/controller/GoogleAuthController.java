@@ -1,6 +1,7 @@
 package com.googlecalender.controller;
 
 
+import com.google.api.client.auth.oauth2.Credential;
 import com.googlecalender.service.CalenderAuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
@@ -12,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.view.RedirectView;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("oauth2")
@@ -30,10 +33,10 @@ public class GoogleAuthController {
     }
 
     @GetMapping("/callback/google")
-    public ResponseEntity<String> oAuthCallBack(@RequestParam("code") String code, HttpServletRequest httpServletRequest){
-        String credential= this.calenderService.oAuthCallback(code,httpServletRequest);
-       /* Credential obj= (Credential) httpServletRequest.getAttribute("googleCredential");
-       log.info("Controller -> access token : {}, refresh token : {}, expire token : {}", obj.getAccessToken(), obj.getRefreshToken(), obj.getExpiresInSeconds());*/
-        return new ResponseEntity<>(credential, HttpStatus.FOUND);
+    public ResponseEntity<Map<String, Object>> oAuthCallBack(@RequestParam("code") String code){
+        Map<String, Object> credential= this.calenderService.oAuthCallback(code);
+      /*  Credential obj= (Credential) httpServletRequest.getSession().getAttribute("credential");
+       log.info("Controller -> access token : {}, refresh token : {}, expire token : {}", obj.getAccessToken(), obj.getRefreshToken(), obj.getExpiresInSeconds());
+        */return new ResponseEntity<>(credential, HttpStatus.FOUND);
     }
 }
