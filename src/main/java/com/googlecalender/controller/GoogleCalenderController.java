@@ -1,6 +1,7 @@
 package com.googlecalender.controller;
 
 
+import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
 import com.googlecalender.dto.EventDTO;
 import com.googlecalender.service.ICalenderService;
@@ -31,5 +32,11 @@ public class GoogleCalenderController {
                                                           @RequestParam LocalDateTime startTime, @RequestParam LocalDateTime endTime) {
         List<Event> userEventList = this.calenderService.getAllEvents(credentialId, expireTimeSpan, startTime, endTime);
         return new ResponseEntity<>(userEventList, HttpStatus.OK);
+    }
+
+    @GetMapping("/get-all-user-calenders")
+    public ResponseEntity<List<CalendarListEntry>> getAllCalendarList(@RequestParam String credentialId, @RequestParam Long expireTimeSpan){
+        List<CalendarListEntry> calendarListEntryList= this.calenderService.getCalendarList(credentialId, expireTimeSpan);
+        return new ResponseEntity<>(calendarListEntryList, HttpStatus.OK);
     }
 }

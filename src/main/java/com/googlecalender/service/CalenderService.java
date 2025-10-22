@@ -6,10 +6,7 @@ import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
-import com.google.api.services.calendar.model.Event;
-import com.google.api.services.calendar.model.EventAttendee;
-import com.google.api.services.calendar.model.EventDateTime;
-import com.google.api.services.calendar.model.Events;
+import com.google.api.services.calendar.model.*;
 import com.googlecalender.dto.EventDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -116,6 +113,22 @@ public class CalenderService implements ICalenderService{
         }catch (Exception e){
             log.error("An exception thrown : ",e);
             return List.of();
+        }
+    }
+
+    @Override
+    public List<CalendarListEntry> getCalendarList(String accessToken, Long expireSecondsTime) {
+        try{
+            Credential credential = new Credential(BearerToken.authorizationHeaderAccessMethod());
+            credential.setAccessToken(accessToken);
+            credential.setExpiresInSeconds(expireSecondsTime);
+
+            Calendar client = getCalenderClient(credential);
+            CalendarList calendarList= client.calendarList().list().execute();
+            return calendarList.getItems();
+        } catch (Exception e) {
+            log.error("An exception thrown : ",e);
+            return new ArrayList<>();
         }
     }
 }
